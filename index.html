@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Should've Kissed You Anyway</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:system-ui, sans-serif;
+}
+
+body{
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#0b1020;
+}
+
+/* =========================
+   GLOWING BACKGROUND (KEEPED)
+========================= */
+body::before,
+body::after{
+    content:"";
+    position:absolute;
+    width:500px;
+    height:500px;
+    border-radius:50%;
+    filter:blur(120px);
+    opacity:0.5;
+    animation:move 12s infinite alternate ease-in-out;
+    z-index:0;
+}
+
+body::before{
+    background:#7c3aed;
+    top:-100px;
+    left:-100px;
+}
+
+body::after{
+    background:#06b6d4;
+    bottom:-120px;
+    right:-120px;
+    animation-delay:3s;
+}
+
+@keyframes move{
+    from{transform:translate(0,0) scale(1);}
+    to{transform:translate(80px,60px) scale(1.2);}
+}
+
+/* =========================
+   GLITTER PARTICLES (KEEPED)
+========================= */
+.particle{
+    position:absolute;
+    border-radius:50%;
+    background:white;
+    opacity:0.15;
+    animation:float linear infinite;
+    z-index:0;
+    box-shadow:0 0 10px rgba(255,255,255,0.4);
+}
+
+@keyframes float{
+    from{transform:translateY(100vh) scale(0.5);}
+    to{transform:translateY(-120vh) scale(1.2);}
+}
+
+/* =========================
+   MAIN CARD
+========================= */
+.container{
+    width:90%;
+    max-width:850px;
+    padding:30px;
+    border-radius:25px;
+    background:rgba(255,255,255,0.06);
+    backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.1);
+    text-align:center;
+    color:white;
+    z-index:2;
+    box-shadow:0 0 60px rgba(0,0,0,0.5);
+}
+
+h1{
+    font-size:2.3rem;
+    margin-bottom:10px;
+    background:linear-gradient(90deg,#a78bfa,#22d3ee);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* =========================
+   AUDIO
+========================= */
+audio{
+    width:100%;
+    margin-top:15px;
+}
+
+/* =========================
+   SOUND WAVE VISUALIZER
+========================= */
+#wave{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:4px;
+    height:90px;
+    margin-top:20px;
+}
+
+.bar{
+    width:6px;
+    height:10px;
+    background:linear-gradient(#a78bfa,#22d3ee);
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(34,211,238,0.6);
+}
+
+/* =========================
+   LYRICS
+========================= */
+.lyrics{
+    font-size:1.1rem;
+    line-height:2;
+    margin-top:15px;
+}
+
+.line{
+    opacity:0;
+    animation:show 1s forwards;
+}
+
+.line:nth-child(1){animation-delay:1s;}
+.line:nth-child(2){animation-delay:2s;}
+.line:nth-child(3){animation-delay:3s;}
+.line:nth-child(4){animation-delay:4s;}
+.line:nth-child(5){animation-delay:5s;}
+.line:nth-child(6){animation-delay:6s;}
+.line:nth-child(7){animation-delay:7s;}
+.line:nth-child(8){animation-delay:8s;}
+
+@keyframes show{
+    to{opacity:1; transform:translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Ruin The Friendship</h1>
+
+    <!-- AUDIO -->
+    <audio id="audio" controls>
+        <source src="your-music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- SOUND WAVE -->
+    <div id="wave"></div>
+
+    <div class="lyrics">
+        <div class="line">Should've kissed you anyway (anyway)</div>
+        <div class="line">Should've kissed you anyway, anyway (anyway)</div>
+        <div class="line">And it was not</div>
+        <div class="line">My advice is always ruin the friendship</div>
+        <div class="line">Better that than regret it for all time</div>
+        <div class="line">Should've kissed you anyway</div>
+        <div class="line">And my advice is always answer the question</div>
+        <div class="line">Better that than to ask it all your life</div>
+    </div>
+</div>
+
+<script>
+/* =========================
+   GLITTER (UNCHANGED)
+========================= */
+for(let i=0;i<60;i++){
+    const p=document.createElement("div");
+    p.className="particle";
+
+    const size=Math.random()*6+2;
+    p.style.width=size+"px";
+    p.style.height=size+"px";
+    p.style.left=Math.random()*100+"vw";
+    p.style.animationDuration=(10+Math.random()*20)+"s";
+    p.style.animationDelay=Math.random()*10+"s";
+
+    document.body.appendChild(p);
+}
+
+/* =========================
+   SOUND WAVE VISUALIZER
+========================= */
+const audio = document.getElementById("audio");
+const wave = document.getElementById("wave");
+
+// create bars
+for(let i=0;i<30;i++){
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    wave.appendChild(bar);
+}
+
+const bars = document.querySelectorAll(".bar");
+
+let context, analyser, source, dataArray;
+
+audio.addEventListener("play", () => {
+    if(!context){
+        context = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = context.createAnalyser();
+
+        source = context.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(context.destination);
+
+        analyser.fftSize = 64;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+    }
+
+    animate();
+});
+
+function animate(){
+    requestAnimationFrame(animate);
+
+    if(!analyser) return;
+
+    analyser.getByteFrequencyData(dataArray);
+
+    bars.forEach((bar, i) => {
+        let value = dataArray[i] || 0;
+        bar.style.height = (value / 2) + "px";
+        bar.style.opacity = 0.4 + value/255;
+    });
+}
+</script>
+
+</body>
+</html>
